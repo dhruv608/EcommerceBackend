@@ -5,17 +5,17 @@ services:
   # Name of your service
   name: ecommerce-backend
   
-  # Environment variables
+  # Environment variables (USE THESE IN RENDER DASHBOARD)
   env:
     # Spring Boot configuration
     - key: SPRING_PROFILES_ACTIVE
       value: production
     - key: SPRING_DATASOURCE_URL
-      value: jdbc:postgresql://ep-green-leaf-aimjvu4j-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require&user=neondb_owner&password=npg_7EbcpYaZXU0r
+      value: ${DATABASE_URL}
     - key: SPRING_DATASOURCE_USERNAME
-      value: neondb_owner
+      value: ${DATABASE_USER}
     - key: SPRING_DATASOURCE_PASSWORD
-      value: npg_7EbcpYaZXU0r
+      value: ${DATABASE_PASSWORD}
     - key: SERVER_PORT
       value: 8080
 
