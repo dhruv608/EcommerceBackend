@@ -1,0 +1,39 @@
+services:
+  # Type of service
+  type: web
+  
+  # Name of your service
+  name: ecommerce-backend
+  
+  # Environment variables
+  env:
+    # Spring Boot configuration
+    - key: SPRING_PROFILES_ACTIVE
+      value: production
+    - key: SPRING_DATASOURCE_URL
+      value: jdbc:postgresql://ep-green-leaf-aimjvu4j-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require&user=neondb_owner&password=npg_7EbcpYaZXU0r
+    - key: SPRING_DATASOURCE_USERNAME
+      value: neondb_owner
+    - key: SPRING_DATASOURCE_PASSWORD
+      value: npg_7EbcpYaZXU0r
+    - key: SERVER_PORT
+      value: 8080
+
+  # Build and runtime settings (Native Spring Boot - No Docker)
+  buildCommand: ./mvnw clean package -DskipTests
+  startCommand: java -jar target/backend-1.0.jar --spring.profiles.active=production
+  
+  # Health check
+  healthCheckPath: /actuator/health
+  
+  # Instance type
+  instanceType: free
+  
+  # Port
+  port: 8080
+
+  # Auto-deploy on push
+  autoDeploy: true
+  
+  # Plan
+  plan: free
