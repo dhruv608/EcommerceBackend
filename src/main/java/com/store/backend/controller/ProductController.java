@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,7 +27,6 @@ import com.store.backend.service.ProductService;
 import jakarta.validation.Valid;
 import tools.jackson.databind.ObjectMapper;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -41,11 +39,10 @@ public class ProductController {
 	}
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<Product> create(@Valid 
-			@RequestPart("product") String productJson,
+	public ResponseEntity<Product> create(@Valid @RequestPart("product") String productJson,
 			@RequestPart("images") MultipartFile[] images) throws Exception {
 
-		System.out.println("HIT"); 
+		System.out.println("HIT");
 
 		ObjectMapper mapper = new ObjectMapper();
 		Product product = mapper.readValue(productJson, Product.class);
@@ -58,19 +55,18 @@ public class ProductController {
 	@GetMapping
 	public ResponseEntity<Page<Product>> getProducts(
 			@RequestParam(required = false) String search,
-			@RequestParam(required = false) Long categoryId, 
+			@RequestParam(required = false) Long categoryId,
 			@RequestParam(required = false) Boolean isActive,
 			@RequestParam(required = false) Boolean isFeatured,
-	        @RequestParam(defaultValue = "0") int page,
-	        @RequestParam(defaultValue = "10") int size,
-	        @RequestParam(defaultValue = "createdAt") String sortBy,
-	        @RequestParam(defaultValue = "desc") String direction,
-	        @RequestParam(required = false) Integer minPrice,
-	        @RequestParam(required = false) Integer maxPrice
-			) {
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "createdAt") String sortBy,
+			@RequestParam(defaultValue = "desc") String direction,
+			@RequestParam(required = false) Integer minPrice,
+			@RequestParam(required = false) Integer maxPrice) {
 		return ResponseEntity.ok(productService.getFilteredProducts(search, categoryId, isActive,
-				isFeatured,   page, size, sortBy, direction ,   minPrice,
-	            maxPrice));
+				isFeatured, page, size, sortBy, direction, minPrice,
+				maxPrice));
 	}
 
 	@GetMapping("/category/{categoryId}")
@@ -115,7 +111,5 @@ public class ProductController {
 
 		return productService.updatePartial(id, updates);
 	}
-
-
 
 }
