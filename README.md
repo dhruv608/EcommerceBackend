@@ -101,180 +101,8 @@
 
 ---
 
-## 🏗️ Project Architecture
 
-```
-🏰 LIGHTSTORE BACKEND ARCHITECTURE 🏰
-┌─────────────────────────────────────────────────────────────┐
-│                    🌐 API LAYER                            │
-├─────────────────────────────────────────────────────────────┤
-│  🎯 Controllers (REST Endpoints)                           │
-│  ├── AuthController.java      # 🔐 Authentication Engine    │
-│  ├── ProductController.java   # 🛍️ Product Management      │
-│  ├── CartController.java      # 🛒 Shopping Cart System   │
-│  └── OrderController.java     # 📦 Order Processing       │
-├─────────────────────────────────────────────────────────────┤
-│  🧠 Business Logic Layer                                 │
-│  ├── AuthService.java         # 🔑 Authentication Logic   │
-│  ├── ProductService.java      # 📱 Product Business Logic │
-│  ├── CartService.java         # 🛒 Cart Management        │
-│  └── OrderService.java        # 📦 Order Processing       │
-├─────────────────────────────────────────────────────────────┤
-│  📊 Data Models Layer                                   │
-│  ├── User.java                # 👤 User Entity           │
-│  ├── Product.java             # 🛍️ Product Entity        │
-│  ├── Cart.java                # 🛒 Cart Entity           │
-│  └── Order.java               # 📦 Order Entity          │
-├─────────────────────────────────────────────────────────────┤
-│  🔐 Security Layer                                        │
-│  ├── SecurityConfig.java      # 🛡️ Spring Security Config│
-│  ├── JwtAuthFilter.java       # 🔐 JWT Authentication     │
-│  └── JwtUtil.java            # 🔑 JWT Token Utilities    │
-├─────────────────────────────────────────────────────────────┤
-│  🗄️ Data Access Layer                                     │
-│  ├── UserRepository.java      # 👤 User Data Access       │
-│  ├── ProductRepository.java   # 🛍️ Product Data Access    │
-│  └── OrderRepository.java     # 📦 Order Data Access      │
-├─────────────────────────────────────────────────────────────┤
-│  ⚙️ Configuration Layer                                   │
-│  ├── application.properties   # 🌐 Environment Config     │
-│  └── WebConfig.java          # 🌐 Web & CORS Config       │
-└─────────────────────────────────────────────────────────────┘
-```
 
----
-
-## �️ Database Schema Design
-
-### 🏛️ **Database Architecture Diagram**
-```mermaid
-erDiagram
-    USERS ||--o{ ORDERS : places
-    USERS ||--o{ CART_ITEMS : owns
-    PRODUCTS ||--o{ CART_ITEMS : contained_in
-    PRODUCTS ||--o{ ORDER_ITEMS : included_in
-    CATEGORIES ||--o{ PRODUCTS : contains
-    ORDERS ||--o{ ORDER_ITEMS : includes
-    
-    USERS {
-        bigint id PK
-        varchar username UK
-        varchar email UK
-        varchar password
-        varchar role
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    CATEGORIES {
-        bigint id PK
-        varchar name UK
-        text description
-        boolean is_active
-        timestamp created_at
-    }
-    
-    PRODUCTS {
-        bigint id PK
-        varchar name
-        text description
-        decimal price
-        bigint category_id FK
-        json image_urls
-        boolean is_active
-        boolean is_featured
-        integer stock_quantity
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    CART_ITEMS {
-        bigint id PK
-        bigint user_id FK
-        bigint product_id FK
-        integer quantity
-        decimal price_at_time
-        timestamp added_at
-    }
-    
-    ORDERS {
-        bigint id PK
-        bigint user_id FK
-        decimal total_amount
-        varchar status
-        json shipping_address
-        json billing_address
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    ORDER_ITEMS {
-        bigint id PK
-        bigint order_id FK
-        bigint product_id FK
-        integer quantity
-        decimal price_at_time
-        json product_snapshot
-    }
-```
-
-### 📊 **Table Relationships Visualization**
-```sql
-🏰 LIGHTSTORE DATABASE STRUCTURE 🏰
-┌─────────────────────────────────────────────────────────────┐
-│                     👤 USERS TABLE                         │
-│  ┌─────────┬─────────────┬─────────────┬──────────────────┐ │
-│  │   ID    │   USERNAME  │    EMAIL    │     ROLE         │ │
-│  │  PK     │    UK       │     UK      │   USER/ADMIN     │ │
-│  └─────────┴─────────────┴─────────────┴──────────────────┘ │
-│           │                    │                           │
-│           │                    │                           │
-│           ▼                    ▼                           │
-│  ┌─────────────────┐  ┌─────────────────┐                 │
-│  │     ORDERS      │  │    CART_ITEMS   │                 │
-│  │  (user_id FK)   │  │  (user_id FK)   │                 │
-│  └─────────────────┘  └─────────────────┘                 │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                   🛍️ PRODUCTS TABLE                       │
-│  ┌─────────┬─────────────┬─────────────┬──────────────────┐ │
-│  │   ID    │     NAME    │    PRICE    │   CATEGORY_ID    │ │
-│  │  PK     │             │             │      FK          │ │
-│  └─────────┴─────────────┴─────────────┴──────────────────┘ │
-│           │                    │                           │
-│           │                    │                           │
-│           ▼                    ▼                           │
-│  ┌─────────────────┐  ┌─────────────────┐                 │
-│  │  ORDER_ITEMS    │  │   CART_ITEMS    │                 │
-│  │ (product_id FK)  │  │ (product_id FK) │                 │
-│  └─────────────────┘  └─────────────────┘                 │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│                  📂 CATEGORIES TABLE                       │
-│  ┌─────────┬─────────────┬─────────────┬──────────────────┐ │
-│  │   ID    │     NAME    │ DESCRIPTION │   IS_ACTIVE      │ │
-│  │  PK     │     UK      │             │                  │ │
-│  └─────────┴─────────────┴─────────────┴──────────────────┘ │
-│                              │                             │
-│                              ▼                             │
-│                   ┌─────────────────┐                      │
-│                   │    PRODUCTS     │                      │
-│                   │ (category_id FK)│                      │
-│                   └─────────────────┘                      │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 🎯 **Database Design Principles**
-- **🏛️ Normalized Structure** - Eliminated data redundancy
-- **🔗 Foreign Key Constraints** - Data integrity guaranteed
-- **⚡ Optimized Indexes** - Lightning-fast queries
-- **📊 JSON Fields** - Flexible data storage for images and addresses
-- **⏰ Timestamp Tracking** - Complete audit trail
-- **🔒 Cascade Operations** - Automatic data consistency
-
----
 
 ##  Features Implemented
 
@@ -466,7 +294,7 @@ spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=20MB
 
 # ===============================
-# 🚀 SERVER CONFIGURATION
+# SERVER CONFIGURATION
 # ===============================
 server.port=8080
 server.servlet.context-path=/api
@@ -474,7 +302,7 @@ server.servlet.context-path=/api
 
 ---
 
-## 🚀 Getting Started Guide
+## Getting Started Guide
 
 ### 📋 **Prerequisites**
 <div align="center">
@@ -587,7 +415,7 @@ curl -X POST http://localhost:8080/api/auth/register
 - **Cloud Storage Integration** - S3 and cloud storage patterns
 - **File Management** - CRUD operations for files
 
-#### **🚀 PRODUCTION READINESS**
+#### ** PRODUCTION READINESS**
 - **Environment Configuration** - Dev, staging, prod setups
 - **Logging and Monitoring** - Logback and Actuator
 - **Performance Optimization** - Caching and connection pooling
@@ -605,7 +433,7 @@ curl -X POST http://localhost:8080/api/auth/register
 
 </div>
 
-### 🚀 **Next Learning Goals**
+###  **Next Learning Goals**
 - [ ] **Microservices Architecture** - Service discovery, load balancing
 - [ ] **Redis Caching** - Distributed caching strategies
 - [ ] **Message Queues** - RabbitMQ or Kafka integration
@@ -705,10 +533,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 </div>
 
-- **🐙 GitHub**: [@yourusername](https://github.com/yourusername)
-- **💼 LinkedIn**: [Your LinkedIn Profile](https://linkedin.com/in/yourprofile)
-- **📧 Email**: your.email@example.com
-- **🐦 Twitter**: [@yourusername](https://twitter.com/yourusername)
+- **🐙 GitHub**: [@dhruv608](https://github.com/dhruv608)
+- **💼 LinkedIn**: [@dhruvnarang608](https://linkedin.com/in/dhruvnarang608)
+- **📧 Email**: dhruvnarang608@gmail.com
 
 ---
 
@@ -724,7 +551,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you found this project **🔥 INSANELY HELPFUL** for your Spring Boot learning journey, please give it a ⭐ star on GitHub!
 
-> 💡 **REMEMBER**: This is a **LEARNING PROJECT** built with passion and dedication. The best way to learn is by **BUILDING**, **EXPERIMENTING**, and **NOT BEING AFRAID** to make mistakes. Every line of code is a step toward mastery! 🚀
+> 💡 **REMEMBER**: This is a **LEARNING PROJECT** built with passion and dedication. The best way to learn is by **BUILDING**, **EXPERIMENTING**, and **NOT BEING AFRAID** to make mistakes. Every line of code is a step toward mastery! 
 
 ---
 
@@ -732,7 +559,7 @@ If you found this project **🔥 INSANELY HELPFUL** for your Spring Boot learnin
 
 # 🎉 **THANK YOU FOR VISITING!** 🎉
 
-## **Built with ❤️, ☕, and 🚀 During My Epic Spring Boot Learning Journey**
+## **Built with ❤️, ☕, and During My Epic Spring Boot Learning Journey**
 
 ### **Every Project is a Step Toward Mastery!**
 
